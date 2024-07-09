@@ -16,11 +16,14 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: "Create comment with API"
-              env:
-                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
                 curl -s -X POST \
-                https://api.github.com/repos/${{ github.event.repository.name }}/issues/${{ github.event.issue.number }}/comments \
+                https://api.github.com/repos/$ORGANIZATION/$REPO/issues/$ISSUE_NUMBER/comments \
                 -H "Authorization: token $GITHUB_TOKEN" \
                 -H "Content-Type: application/json" \
-                -d '{"body": "This is a multi-line test comment"}'
+                -d '{"body": "Comment from github api"}'
+              env:
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                ORGANIZATION: ${{ github.event.repository.owner.login }}
+                REPO: ${{ github.event.repository.name }}
+                ISSUE_NUMBER: ${{ github.event.issue.number }}
