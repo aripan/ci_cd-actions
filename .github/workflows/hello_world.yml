@@ -1,0 +1,30 @@
+name: Hello world workflow
+
+on:
+    push:
+        branches:
+            - main # This will trigger the workflow when a push is made to the main branch.
+    pull_request:
+        branches:
+            - main # This will trigger the workflow when a pull request is made to the main branch.
+
+    workflow_dispatch:  # The 'workflow_dispatch' event allows you to manually trigger the workflow from the GitHub Actions tab without needing of push or pull request.
+
+jobs:
+    # job one
+    hello:
+        runs-on: ubuntu-latest # The job will run on the latest version of an Ubuntu runner
+        steps:
+            - uses: actions/checkout@v3 # This step checks out the repository so the workflow can access it
+            - name: hello world # This step is named "hello world"
+              run: echo "Hello, world!" # This command prints "Hello, world!" to the console
+              shell: bash # This specifies that the command should be run in a bash shell
+
+    # job two
+    # This job will run in parallel with the 'hello' job
+    goodbye:
+        runs-on: ubuntu-latest
+        steps:
+            - name: goodbye world
+              run: echo "Goodbye, world!"
+              shell: bash
