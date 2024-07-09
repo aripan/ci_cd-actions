@@ -1,0 +1,13 @@
+name: Create a comment on new issues # This specifies the name of the workflow
+
+on:
+    issues:
+        types: [opened] # This triggers the workflow when a new issue is opened
+
+jobs:
+    comment-with-action:
+        runs-on: ubuntu-latest # The job will run on the latest version of an Ubuntu runner
+        steps:
+            - name: "dump github context" # This step is named "dump github context"
+              run: echo "${{ toJson(github.event) }}" | jq # This command prints the GitHub event context in JSON format and pipes it to jq for pretty-printing
+              shell: bash # This specifies that the command should be run in a bash shell
