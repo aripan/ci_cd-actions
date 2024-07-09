@@ -17,7 +17,7 @@ jobs:
         steps:
             - uses: actions/checkout@v3 # This step checks out the repository so the workflow can access it
             - name: Set up Node.js
-              uses: actions/setup-node@v2
+              uses: actions/setup-node@v3
               with:
                 node-version: '20' # Specify the Node.js version to use
             - name: hello world # This step is named "hello world"
