@@ -2,7 +2,7 @@ name: Create a comment on new issues # This specifies the name of the workflow
 
 on:
     issues:
-        types: [opened] # This triggers the workflow when a new issue is opened
+        types: [opened, edited] # This triggers the workflow when a new issue is opened or being edited
 
 jobs:
     comment-with-action:
@@ -11,11 +11,16 @@ jobs:
             - name: "dump github context" # This step is named "dump github context"
               run: echo '${{ toJSON(github.event) }}' | jq . # This command prints the GitHub event context in JSON format and pipes it to jq for pretty-printing
               shell: bash # This specifies that the command should be run in a bash shell
-            - name: Create comment
-              uses: peter-evans/create-or-update-comment@v4
-              with:
-                issue-number: ${{ github.event.issue.number }}
-                body: |
-                  This is a multi-line test comment
-                  - With GitHub **Markdown** :sparkles:
-                  - Created by [create-or-update-comment][1]
+
+    comment-with-api:
+        runs-on: ubuntu-latest
+        steps:
+            - name: "Create comment with API"
+              env:
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                curl -s -X POST \
+                https://api.github.com/repos/${{ github.event.repository.name }}/issues/${{ github.event.issue.number }}/comments \
+                -H "Authorization: token $GITHUB_TOKEN" \
+                -H "Content-Type: application/json" \
+                -d '{"body": "This is a multi-line test comment"}'
