@@ -1,0 +1,18 @@
+{
+  "name": "ci_cd-actions",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Asad",
+  "license": "MIT",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "jest --detectOpenHandles"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0"
+  }
+}

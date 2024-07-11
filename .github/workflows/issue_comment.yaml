@@ -12,18 +12,19 @@ jobs:
               run: echo '${{ toJSON(github.event) }}' | jq . # This command prints the GitHub event context in JSON format and pipes it to jq for pretty-printing
               shell: bash # This specifies that the command should be run in a bash shell
 
-    comment-with-api:
-        runs-on: ubuntu-latest
-        steps:
-            - name: "Create comment with API"
-              run: |
-                curl -s -X POST \
-                https://api.github.com/repos/$ORGANIZATION/$REPO/issues/$ISSUE_NUMBER/comments \
-                -H "Authorization: token $GITHUB_TOKEN" \
-                -H "Content-Type: application/json" \
-                -d '{"body": "Comment from github api"}'
-              env:
-                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                ORGANIZATION: ${{ github.event.repository.owner.login }}
-                REPO: ${{ github.event.repository.name }}
-                ISSUE_NUMBER: ${{ github.event.issue.number }}
+    ## This is not working and i don't wanna spend more time on it now.
+    # comment-with-api:
+    #     runs-on: ubuntu-latest
+    #     steps:
+    #         - name: "Create comment with API"
+    #           run: |
+    #             gh api -X POST \
+    #             http://api.github.com/repos/${ORGANIZATION}/${REPO}/issues/${ISSUE_NUMBER}/comments \
+    #             -H "Authorization: token ${GITHUB_TOKEN}" \
+    #             -H "Content-Type: application/json" \
+    #             -d '{"body": "Comment from github api"}'
+    #           env:
+    #             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #             ORGANIZATION: ${{ github.event.repository.owner.login }}
+    #             REPO: ${{ github.event.repository.name }}
+    #             ISSUE_NUMBER: ${{ github.event.issue.number }}
