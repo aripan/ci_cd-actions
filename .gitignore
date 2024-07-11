@@ -8,5 +8,3 @@ yarn-error.log
 *.log
 *.ts
 *.tsx
-.github/workflows/hello_world.yaml
-.github/workflows/issue_comment.yaml
