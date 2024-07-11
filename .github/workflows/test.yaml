@@ -7,12 +7,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3 # This step checks out the repository so the workflow can access it
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v3 # This step sets up Node.js environment
         with:
-          node-version: 20
+          node-version: 20 # Specifies the Node.js version to use
       - name: Install dependencies
-        run: yarn install
-      - name: Run integration tests
-        run: yarn run test
+        run: yarn install # This step installs the project dependencies using yarn
+      - name: Run tests
+        run: yarn run test # This step runs the tests using yarn

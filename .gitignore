@@ -1,0 +1,11 @@
+node_modules
+yarn-error.log
+.env
+Dockerfile
+.dockerignore
+.git/
+.vscode/
+.idea/
+*.log
+*.ts
+*.tsx
