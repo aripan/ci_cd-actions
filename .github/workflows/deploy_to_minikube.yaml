@@ -1,41 +1,36 @@
-name: Deploy to Minikube # This specifies the name of the workflow
+name: Deploy to Minikube
 
-on: [push] # This triggers the workflow on push events
-
+on:
+    push:
+      branches:
+        - main
 jobs:
   deploy:
-    runs-on: ubuntu-latest # The job will run on the latest version of an Ubuntu runner
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository # This step checks out the repository
-        uses: actions/checkout@v3
+        - name: Checkout repository
+          uses: actions/checkout@v3
 
-      - name: Set up kubectl # This step sets up kubectl
-        uses: azure/setup-kubectl@v1
-        with:
-          version: 'v1.20.0'
+        - name: Start Minikube
+          run: |
+            minikube start --driver=docker
+            minikube kubectl -- get pods --all-namespaces
 
-      - name: Set up Minikube # This step sets up Minikube
-        uses: manusa/actions-setup-minikube@v2.4.0
-        with:
-          minikube version: 'v1.18.1'
-          kubernetes version: 'v1.20.0'
+        - name: Build & push Docker image
+          uses: mr-smithers-excellent/docker-build-push@v6
+          with:
+            image: asad199/ci-cd-actions
+            tags: ${{ github.sha }}, latest
+            registry: docker.io
+            dockerfile: Dockerfile
+            username: ${{ secrets.DOCKERHUB_USERNAME }}
+            password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Start Minikube # This step starts Minikube
-        run: minikube start --driver=docker
+        - name: Deploy to Minikube
+          run: |
+            kubectl apply -f web-app.yaml
+            kubectl rollout status deployment/webapp-deployment
 
-    #   - name: Deploy MongoDB # This step deploys MongoDB
-    #     run: kubectl apply -f mongo-app.yaml
-
-      - name: Deploy Web App # This step deploys the web application
-        run: kubectl apply -f web-app.yaml
-
-      - name: Wait for deployments to be ready # This step waits for the deployments to be ready
-        run: kubectl rollout status deployment/webapp-deployment
-
-        # run: |
-        #   kubectl rollout status deployment/mongo-deployment
-        #   kubectl rollout status deployment/webapp-deployment
-
-      - name: Get services # This step gets the services
-        run: kubectl get services
+        - name: Get services
+          run: kubectl get services

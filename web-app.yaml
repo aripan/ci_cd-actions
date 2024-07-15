@@ -29,6 +29,7 @@ kind: Service # Type of Kubernetes object
 metadata:
   name: webapp-service # Name of the service
 spec:
+  type: NodePort
   selector:
     app: webapp # Label selector to identify the pods
   ports:
