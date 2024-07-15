@@ -38,6 +38,15 @@ jobs:
             # DockerHub token from secrets
             password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+        - name: Replace docker-image name in web-app.yaml
+          run: |
+            # Use the 'sed' command to find and replace the Docker image name in the web-app.yaml file
+            # 'sed -i' is used to edit the file in place
+            # 's|image: docker-image|image: asad199/ci-cd-actions:${{ github.sha }}|g' is the substitution pattern
+            # It replaces 'image: docker-image' with 'image: asad199/ci-cd-actions:${{ github.sha }}' globally in the file
+
+            sed -i 's|image: docker-image|image: asad199/ci-cd-actions:${{ github.sha }}|g' web-app.yaml
+
         # Step to create deployment to IONOS Kubernetes
         - name: Create deployment to IONOS Kubernetes
           uses: actions-hub/kubectl@master

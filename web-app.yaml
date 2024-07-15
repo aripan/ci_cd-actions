@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: webapp # Name of the container
-          image: asad199/ci-cd-actions:latest # Docker image to use for the container
+          image: docker-image # this name will be replaced in each push to the repository so that the latest image is always used
           ports:
             - containerPort: 3000 # Port to expose on the container
           # Environment variables
