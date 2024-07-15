@@ -1,0 +1,30 @@
+name: Deploy to IONOS
+
+on:
+    push:
+      branches:
+        - main
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+        - name: Checkout repository
+          uses: actions/checkout@v3
+
+        - name: Build & push Docker image
+          uses: mr-smithers-excellent/docker-build-push@v6
+          with:
+            image: asad199/ci-cd-actions
+            tags: ${{ github.sha }}, latest
+            registry: docker.io
+            dockerfile: Dockerfile
+            username: ${{ secrets.DOCKERHUB_USERNAME }}
+            password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+        - name: Create deployment to IONOS Kubernetes
+          uses: actions-hub/kubectl@master
+          env:
+            KUBE_CONFIG: ${{ secrets.KUBE_CONFIG_IONOS }}
+          with:
+            args: apply -f web-app.yaml
