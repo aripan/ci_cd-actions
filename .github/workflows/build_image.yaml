@@ -1,20 +1,21 @@
-name: Build Image
+name: Build Image # This specifies the name of the workflow
 
-on: [push, pull_request]
+on: [push, pull_request] # This triggers the workflow on push and pull request events
 
 jobs:
   build-image:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest # The job will run on the latest version of an Ubuntu runner
     steps:
-      - name: Checkout repository
+      - name: Checkout repository # This step checks out the repository
         uses: actions/checkout@v3
 
-      - name: Build & push Docker image
+      - name: Build & push Docker image # This step builds and pushes the Docker image
         uses: mr-smithers-excellent/docker-build-push@v6
         with:
-          image: asad199/ci-cd-actions
-          tags: ${{ github.sha }}, latest
-          registry: docker.io
-          dockerfile: Dockerfile
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          image: asad199/ci-cd-actions # The name of the Docker image
+          tags: ${{ github.sha }}, latest # Tags for the Docker image
+          registry: docker.io # The Docker registry to push the image to
+          dockerfile: Dockerfile # The Dockerfile to use for building the image
+          username: ${{ secrets.DOCKERHUB_USERNAME }} # DockerHub username from secrets
+          password: ${{ secrets.DOCKERHUB_TOKEN }} # DockerHub token from secrets
+

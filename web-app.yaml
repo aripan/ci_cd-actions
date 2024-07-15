@@ -1,0 +1,38 @@
+apiVersion: apps/v1 # API version being used
+kind: Deployment # Type of Kubernetes object
+metadata:
+  name: webapp-deployment # Name of the deployment
+  labels:
+    app: webapp # Label to identify the app
+spec:
+  replicas: 1 # Number of pod replicas
+  selector:
+    matchLabels:
+      app: webapp # Label selector to identify the pods
+  template:
+    metadata:
+      labels:
+        app: webapp # Label to identify the app
+    spec:
+      containers:
+        - name: webapp # Name of the container
+          image: asad199/ci-cd-actions:latest # Docker image to use for the container
+          ports:
+            - containerPort: 3000 # Port to expose on the container
+          # Environment variables
+
+
+---
+
+apiVersion: v1 # API version being used
+kind: Service # Type of Kubernetes object
+metadata:
+  name: webapp-service # Name of the service
+spec:
+  selector:
+    app: webapp # Label selector to identify the pods
+  ports:
+    - protocol: TCP # Protocol to be used
+      port: 3000 # Port to expose on the service
+      targetPort: 3000 # Port to target on the pod
+      nodePort: 30001 # Node port to expose on the service

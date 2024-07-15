@@ -1,0 +1,58 @@
+apiVersion: apps/v1 # API version being used
+kind: Deployment # Type of Kubernetes object
+metadata:
+  name: mongo-deployment # Name of the deployment
+  labels:
+    app: mongo # Label to identify the app
+spec:
+  replicas: 1 # Number of pod replicas
+  selector:
+    matchLabels:
+      app: mongo # Label selector to identify the pods
+  template:
+    metadata:
+      labels:
+        app: mongo # Label to identify the app
+    spec:
+      containers:
+        - name: mongo # Name of the container
+          image: mongo:latest # Docker image to use for the container
+          ports:
+            - containerPort: 27017 # Port to expose on the container
+          # Environment variables for MongoDB
+          env:
+            # Environment variable for MongoDB root username
+            - name: MONGO_INITDB_ROOT_USERNAME
+              # Value from secret
+              valueFrom:
+                # Reference to secret key
+                secretKeyRef:
+                  # Name of the file where secret is stored
+                  name: mongo-secret
+                  # Key in the secret
+                  key: mongo-user
+            # Environment variable for MongoDB root password
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              # Value from secret
+              valueFrom:
+                # Reference to secret key
+                secretKeyRef:
+                  # Name of the file where secret is stored
+                  name: mongo-secret
+                  # Key in the secret
+                  key: mongo-password
+
+
+---
+
+apiVersion: v1 # API version being used
+kind: Service # Type of Kubernetes object
+metadata:
+  name: mongo-service # Name of the service
+spec:
+  selector:
+    app: mongo # Label selector to identify the pods
+  ports:
+    - protocol: TCP # Protocol to be used
+      port: 27017 # Port to expose on the service
+      targetPort: 27017 # Port to target on the pod
