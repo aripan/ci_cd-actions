@@ -22,7 +22,6 @@ spec:
       imagePullSecrets:
         - name: ionos-registry-secret
 
-
 ---
 
 apiVersion: v1 # API version being used
