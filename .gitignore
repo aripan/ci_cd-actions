@@ -9,3 +9,5 @@ yarn-error.log
 *.ts
 *.tsx
 token-ionos.json
+
+.github/workflows/ionos-config.yaml
