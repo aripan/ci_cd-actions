@@ -32,14 +32,20 @@ jobs:
             username: ${{ secrets.IONOS_TOKEN_NAME }} # IONOS token name from secrets
             password: ${{ secrets.IONOS_TOKEN_PASSWORD }} # IONOS token password from secrets
 
+        - name: Retrieve image digest
+          id: get-digest
+          run: |
+              IMAGE_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ivicosregistry.cr.de-fra.ionos.com/asad/ci-cd-actions:latest)
+              echo "IMAGE_DIGEST=$IMAGE_DIGEST" >> $GITHUB_ENV
+
         - name: Replace docker-image name in web-app.yaml
             # Use the 'sed' command to find and replace the Docker image name in the web-app.yaml file
             # 'sed -i' is used to edit the file in place
             # 's|image: docker-image|image: ivicosregistry.cr.de-fra.ionos.com/asad199/ci-cd-actions:${{ github.sha }}|g' is the substitution pattern
             # It replaces 'image: docker-image' with 'image: asad199/ci-cd-actions:${{ github.sha }}' globally in the file
           run: |
-            sed -i 's|image: docker-image|image: ivicosregistry.cr.de-fra.ionos.com/asad/ci-cd-actions@${{ github.sha }}|g' web-app.yaml
-            echo "Replaced docker-image with ivicosregistry.cr.de-fra.ionos.com/asad/ci-cd-actions@${{ github.sha }} in web-app.yaml"
+            sed -i 's|image: docker-image|image: ${{ env.IMAGE_DIGEST }}|g' web-app.yaml
+            echo "Replaced docker-image with ${{ env.IMAGE_DIGEST }} in web-app.yaml"
 
 
         - name: Configure kubectl to use IONOS Kubeconfig
