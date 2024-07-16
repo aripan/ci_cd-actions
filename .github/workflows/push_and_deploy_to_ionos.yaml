@@ -67,6 +67,4 @@ jobs:
 
         # Step to create deployment to IONOS Kubernetes
         - name: Apply Kubernetes manifests
-          run: kubectl apply -f web-app.yaml
-          env:
-            KUBECONFIG: $HOME/.kube/temp-config
+          run: kubectl --kubeconfig $HOME/.kube/temp-config apply -f web-app.yaml
