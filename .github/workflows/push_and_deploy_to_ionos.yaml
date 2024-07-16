@@ -44,6 +44,8 @@ jobs:
           run: |
             mkdir -p $HOME/.kube
             echo "${{ secrets.KUBE_CONFIG_IONOS }}" | base64 --decode > $HOME/.kube/temp-config
+            export KUBECONFIG=$HOME/.kube/temp-config
+            kubectl config view
 
         - name: Create Kubernetes secret for Docker registry
           env:
