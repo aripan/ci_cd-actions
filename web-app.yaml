@@ -19,7 +19,8 @@ spec:
           image: docker-image # this name will be replaced in each push to the repository so that the latest image is always used
           ports:
             - containerPort: 3000 # Port to expose on the container
-          # Environment variables
+      imagePullSecrets:
+        - name: ionos-registry-secret
 
 
 ---

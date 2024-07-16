@@ -32,10 +32,28 @@ jobs:
             username: ${{ secrets.IONOS_TOKEN_NAME }} # IONOS token name from secrets
             password: ${{ secrets.IONOS_TOKEN_PASSWORD }} # IONOS token password from secrets
 
+        # Step to create a Docker registry secret in Kubernetes
+        # This secret will be used to authenticate with the Docker registry
+        # The secret is created using the 'kubectl create secret docker-registry' command
+        # The '--docker-server' flag specifies the Docker registry server
+        # The '--docker-username' flag specifies the Docker registry username
+        # The '--docker-password' flag specifies the Docker registry password
+        # The '--docker-email' flag specifies the Docker registry email
+        # The '--dry-run=client -o yaml' flags are used to output the secret in YAML format without actually creating it
+        # The output is then piped to 'kubectl apply -f -' to create or update the secret in Kubernetes
+        - name: Create Docker registry secret in Kubernetes
+          run: |
+            kubectl create secret docker-registry ionos-registry-secret \
+                --docker-server=ivicosregistry.cr.de-fra.ionos.com \
+                --docker-username=${{ secrets.IONOS_TOKEN_NAME }} \
+                --docker-password=${{ secrets.IONOS_TOKEN_PASSWORD }} \
+                --docker-email=${{ secrets.IONOS_EMAIL }} \
+                --dry-run=client -o yaml | kubectl apply -f -
+
         - name: Replace docker-image name in web-app.yaml
             # Use the 'sed' command to find and replace the Docker image name in the web-app.yaml file
             # 'sed -i' is used to edit the file in place
-            # 's|image: docker-image|image: asad199/ci-cd-actions:${{ github.sha }}|g' is the substitution pattern
+            # 's|image: docker-image|image: ivicosregistry.cr.de-fra.ionos.com/asad199/ci-cd-actions:${{ github.sha }}|g' is the substitution pattern
             # It replaces 'image: docker-image' with 'image: asad199/ci-cd-actions:${{ github.sha }}' globally in the file
           run: |
             sed -i 's|image: docker-image|image: ivicosregistry.cr.de-fra.ionos.com/asad199/ci-cd-actions:${{ github.sha }}|g' web-app.yaml
