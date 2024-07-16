@@ -19,6 +19,7 @@ spec:
           image: docker-image # this name will be replaced in each push to the repository so that the latest image is always used
           ports:
             - containerPort: 3000 # Port to expose on the container
+      # This specifies the secret to be used for pulling the Docker image from the private registry
       imagePullSecrets:
         - name: ionossecretasad
 
