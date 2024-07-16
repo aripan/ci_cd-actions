@@ -40,7 +40,7 @@ jobs:
         # The '--docker-password' flag specifies the Docker registry password
         # The '--docker-email' flag specifies the Docker registry email
         # The '--dry-run=client -o yaml' flags are used to output the secret in YAML format without actually creating it
-        # The output is then piped to 'kubectl apply -f -' to create or update the secret in Kubernetes
+        # The output is then piped to 'kubectl apply -f - --validate=false' to create or update the secret in Kubernetes with validation set to false
         - name: Create Docker registry secret in Kubernetes
           run: |
             kubectl create secret docker-registry ionos-registry-secret \
@@ -48,7 +48,7 @@ jobs:
                 --docker-username=${{ secrets.IONOS_TOKEN_NAME }} \
                 --docker-password=${{ secrets.IONOS_TOKEN_PASSWORD }} \
                 --docker-email=${{ secrets.IONOS_EMAIL }} \
-                --dry-run=client -o yaml | kubectl apply -f -
+                --dry-run=client -o yaml | kubectl apply -f - --validate=false
 
         - name: Replace docker-image name in web-app.yaml
             # Use the 'sed' command to find and replace the Docker image name in the web-app.yaml file
