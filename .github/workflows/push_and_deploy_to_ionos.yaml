@@ -85,6 +85,10 @@ jobs:
 
               # Exits the script with an error code
               exit 1
+            else
+              # Prints a success message if the context matches
+              echo "Success: kubectl configuration matches IONOS configuration"
+            fi
 
         # Step to check if the Kubernetes secret exists
         - name: Check if Kubernetes secret exists # This step checks if the Kubernetes secret exists
@@ -97,6 +101,7 @@ jobs:
             else
               # If the secret does not exist, set an environment variable 'exists' to 'false'
               echo "exists=false" >> $GITHUB_ENV
+            fi
 
         # Step to create Kubernetes secret for Docker registry if it does not exist
         - name: Create Kubernetes secret for Docker registry if it does not exist # This step creates the Kubernetes secret for the Docker registry if it does not exist
