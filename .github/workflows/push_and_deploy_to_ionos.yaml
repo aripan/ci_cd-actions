@@ -67,5 +67,5 @@ jobs:
             # Arguments to apply the Kubernetes configuration file
             # The configuration file (web-app.yaml) includes:
             # - Deployment: Manages the deployment of the web app
-            # - Service: Exposes the web app to the network
+            # - Service: Exposes the web app to the network within the cluster or outside the cluster
             args: apply -f web-app.yaml
