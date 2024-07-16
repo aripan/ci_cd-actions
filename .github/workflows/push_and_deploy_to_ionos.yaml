@@ -50,13 +50,14 @@ jobs:
 
         - name: Verify kubectl configuration
           run: |
-              KUBECONFIG=$HOME/.kube/temp-config.yaml kubectl config view
-              KUBECONFIG=$HOME/.kube/temp-config.yaml kubectl config get-contexts
-              KUBECONFIG=$HOME/.kube/temp-config.yaml kubectl config current-context
-              if ! KUBECONFIG=$HOME/.kube/temp-config.yaml kubectl config view | grep -q "ivicosregistry.cr.de-fra.ionos.com"; then
-                  echo "Error: kubectl configuration does not match IONOS configuration"
-                exit 1
-              fi
+            KUBECONFIG=$HOME/.kube/temp-config.yaml kubectl config view
+            KUBECONFIG=$HOME/.kube/temp-config.yaml kubectl config get-contexts
+            KUBECONFIG=$HOME/.kube/temp-config.yaml kubectl config current-context
+            CURRENT_CONTEXT=$(KUBECONFIG=$HOME/.kube/temp-config.yaml kubectl config current-context)
+            if [ "$CURRENT_CONTEXT" != "cluster-admin@test" ]; then
+              echo "Error: kubectl configuration does not match IONOS configuration"
+              exit 1
+            fi
 
         - name: Check if Kubernetes secret exists
           id: check-secret
