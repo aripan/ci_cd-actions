@@ -1,0 +1,31 @@
+## Don't want to trigger this workflow, so change the file format from yaml to txt.
+
+name: Build Image # This specifies the name of the workflow
+
+on: [push, pull_request] # This triggers the workflow on push and pull request events
+
+jobs:
+  build-image:
+    runs-on: ubuntu-latest # The job will run on the latest version of an Ubuntu runner
+    steps:
+      - name: Checkout repository # This step checks out the repository
+        uses: actions/checkout@v3
+
+      # Step to build and push Docker image
+      - name: Build & push Docker image
+        uses: mr-smithers-excellent/docker-build-push@v6
+        with:
+          # Docker image name
+          image: asad199/ci-cd-actions
+          # Tags for the Docker image
+          tags: ${{ github.sha }}, latest
+          # Docker registry to push the image to
+          registry: docker.io
+          # Dockerfile to use for building the image
+          dockerfile: Dockerfile
+          # DockerHub username from secrets
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          # DockerHub token from secrets
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+
