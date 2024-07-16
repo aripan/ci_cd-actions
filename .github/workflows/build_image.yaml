@@ -16,8 +16,9 @@ jobs:
         with:
           image: asad199/ci-cd-actions # The name of the Docker image
           tags: ${{ github.sha }}, latest # Tags for the Docker image
-          registry: docker.io # The Docker registry to push the image to
+          registry: ivicosregistry.cr.de-fra.ionos.com # The Docker registry to push the image to
           dockerfile: Dockerfile # The Dockerfile to use for building the image
-          username: ${{ secrets.DOCKERHUB_USERNAME }} # DockerHub username from secrets
-          password: ${{ secrets.DOCKERHUB_TOKEN }} # DockerHub token from secrets
+          username: ${{ secrets.IONOS_REGISTRY_USERNAME }} # IONOS registry username from secrets
+          password: ${{ secrets.IONOS_REGISTRY_TOKEN }} # IONOS registry token from secrets
+
 
