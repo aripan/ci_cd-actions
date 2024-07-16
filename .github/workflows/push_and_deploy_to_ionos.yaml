@@ -43,15 +43,20 @@ jobs:
         - name: Configure kubectl to use IONOS Kubeconfig
           run: |
               mkdir -p $HOME/.kube
-              echo "${{ secrets.KUBE_CONFIG_IONOS }}" | base64 --decode > $HOME/.kube/temp-config
+              echo "${{ secrets.KUBE_CONFIG_IONOS }}" | base64 --decode > $HOME/.kube/temp-config.yaml
           env:
-              KUBECONFIG: $HOME/.kube/temp-config
-
+              KUBECONFIG: $HOME/.kube/temp-config.yaml
 
         - name: Verify kubectl configuration
-          run: kubectl config view
           env:
-            KUBECONFIG: $HOME/.kube/temp-config
+            KUBECONFIG: $HOME/.kube/temp-config.yaml
+          run: |
+            kubectl config view > config_output.txt
+            if ! grep -q "ivicosregistry.cr.de-fra.ionos.com" config_output.txt; then
+              echo "Error: kubectl configuration does not match IONOS configuration"
+              exit 1
+            fi
+
 
         - name: Check if Kubernetes secret exists
           id: check-secret
@@ -64,6 +69,7 @@ jobs:
             IONOS_TOKEN_NAME: ${{ secrets.IONOS_TOKEN_NAME }}
             IONOS_TOKEN_PASSWORD: ${{ secrets.IONOS_TOKEN_PASSWORD }}
             IONOS_EMAIL: ${{ secrets.IONOS_EMAIL }}
+            KUBECONFIG: $HOME/.kube/temp-config.yaml
           run: |
             kubectl --kubeconfig $HOME/.kube/temp-config create secret docker-registry ionossecretasad \
               --docker-server=ivicosregistry.cr.de-fra.ionos.com \
@@ -73,4 +79,6 @@ jobs:
 
         # Step to create deployment to IONOS Kubernetes
         - name: Apply Kubernetes manifests
-          run: kubectl --kubeconfig $HOME/.kube/temp-config apply -f web-app.yaml
+          env:
+            KUBECONFIG: $HOME/.kube/temp-config.yaml
+          run: kubectl apply -f web-app.yaml
