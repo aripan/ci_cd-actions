@@ -40,43 +40,43 @@ jobs:
           run: |
             sed -i 's|image: docker-image|image: ivicosregistry.cr.de-fra.ionos.com/asad199/ci-cd-actions:${{ github.sha }}|g' web-app.yaml
 
-        - name: Set up kubectl
-          uses: azure/setup-kubectl@v1
-          with:
-            version: 'latest'
+        # - name: Set up kubectl
+        #   uses: azure/setup-kubectl@v1
+        #   with:
+        #     version: 'latest'
 
-        - name: Configure kubectl to use IONOS Kubeconfig
-          run: |
-              mkdir -p $HOME/.kube
-              echo "${{ secrets.KUBE_CONFIG_IONOS }}" | base64 --decode > $HOME/.kube/temp-config
-          env:
-              KUBECONFIG: $HOME/.kube/temp-config
+        # - name: Configure kubectl to use IONOS Kubeconfig
+        #   run: |
+        #       mkdir -p $HOME/.kube
+        #       echo "${{ secrets.KUBE_CONFIG_IONOS }}" | base64 --decode > $HOME/.kube/temp-config
+        #   env:
+        #       KUBECONFIG: $HOME/.kube/temp-config
 
 
-        - name: Verify kubectl configuration
-          run: kubectl config view
-          env:
-            KUBECONFIG: $HOME/.kube/temp-config
+        # - name: Verify kubectl configuration
+        #   run: kubectl config view
+        #   env:
+        #     KUBECONFIG: $HOME/.kube/temp-config
 
-        - name: Create Kubernetes secret for Docker registry
-          env:
-            IONOS_TOKEN_NAME: ${{ secrets.IONOS_TOKEN_NAME }}
-            IONOS_TOKEN_PASSWORD: ${{ secrets.IONOS_TOKEN_PASSWORD }}
-            IONOS_EMAIL: ${{ secrets.IONOS_EMAIL }}
-            KUBECONFIG: $HOME/.kube/temp-config
-          run: |
-              kubectl create secret docker-registry ionos-registry-secret \
-                --docker-server=ivicosregistry.cr.de-fra.ionos.com \
-                --docker-username=$IONOS_TOKEN_NAME \
-                --docker-password=$IONOS_TOKEN_PASSWORD \
-                --docker-email=$IONOS_EMAIL
+        # - name: Create Kubernetes secret for Docker registry
+        #   env:
+        #     IONOS_TOKEN_NAME: ${{ secrets.IONOS_TOKEN_NAME }}
+        #     IONOS_TOKEN_PASSWORD: ${{ secrets.IONOS_TOKEN_PASSWORD }}
+        #     IONOS_EMAIL: ${{ secrets.IONOS_EMAIL }}
+        #     KUBECONFIG: $HOME/.kube/temp-config
+        #   run: |
+        #       kubectl create secret docker-registry ionos-registry-secret \
+        #         --docker-server=ivicosregistry.cr.de-fra.ionos.com \
+        #         --docker-username=$IONOS_TOKEN_NAME \
+        #         --docker-password=$IONOS_TOKEN_PASSWORD \
+        #         --docker-email=$IONOS_EMAIL
 
         # Step to create deployment to IONOS Kubernetes
         - name: Create deployment to IONOS Kubernetes
           uses: actions-hub/kubectl@master
           env:
             # Kubernetes configuration from secrets
-            KUBECONFIG: $HOME/.kube/temp-config
+            KUBE_CONFIG: ${{ secrets.KUBE_CONFIG_IONOS }}
           with:
             # Arguments to apply the Kubernetes configuration file
             # The configuration file (web-app.yaml) includes:
