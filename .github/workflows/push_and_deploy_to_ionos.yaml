@@ -40,6 +40,15 @@ jobs:
           run: |
             sed -i 's|image: docker-image|image: ivicosregistry.cr.de-fra.ionos.com/asad199/ci-cd-actions:${{ github.sha }}|g' web-app.yaml
 
+        - name: Set up kubectl
+          uses: azure/setup-kubectl@v1
+          with:
+            version: 'latest'
+
+        - name: Configure kubectl to use IONOS Kubeconfig
+          run: |
+              echo "${{ secrets.KUBE_CONFIG_IONOS }}" | base64 --decode > $HOME/.kube/temp-config
+
         - name: Create Kubernetes secret for Docker registry
           env:
             IONOS_TOKEN_NAME: ${{ secrets.IONOS_TOKEN_NAME }}
@@ -57,7 +66,7 @@ jobs:
           uses: actions-hub/kubectl@master
           env:
             # Kubernetes configuration from secrets
-            KUBE_CONFIG: ${{ secrets.KUBE_CONFIG_IONOS }}
+            KUBECONFIG: $HOME/.kube/temp-config
           with:
             # Arguments to apply the Kubernetes configuration file
             # The configuration file (web-app.yaml) includes:
