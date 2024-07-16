@@ -44,6 +44,7 @@ jobs:
           run: |
               mkdir -p $HOME/.kube
               echo "${{ secrets.KUBE_CONFIG_IONOS }}" | base64 --decode > $HOME/.kube/temp-config.yaml
+              cat $HOME/.kube/temp-config.yaml
           env:
               KUBECONFIG: $HOME/.kube/temp-config.yaml
 
@@ -51,12 +52,14 @@ jobs:
           env:
             KUBECONFIG: $HOME/.kube/temp-config.yaml
           run: |
+            kubectl config view
+            kubectl config get-contexts
+            kubectl config current-context
             kubectl config view > config_output.txt
             if ! grep -q "ivicosregistry.cr.de-fra.ionos.com" config_output.txt; then
               echo "Error: kubectl configuration does not match IONOS configuration"
               exit 1
             fi
-
 
         - name: Check if Kubernetes secret exists
           id: check-secret
