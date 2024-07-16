@@ -20,7 +20,7 @@ spec:
           ports:
             - containerPort: 3000 # Port to expose on the container
       imagePullSecrets:
-        - name: ionos-registry-secret
+        - name: ionossecretasad
 
 ---
 
