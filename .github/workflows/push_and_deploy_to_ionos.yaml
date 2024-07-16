@@ -39,6 +39,7 @@ jobs:
             # It replaces 'image: docker-image' with 'image: asad199/ci-cd-actions:${{ github.sha }}' globally in the file
           run: |
             sed -i 's|image: docker-image|image: ivicosregistry.cr.de-fra.ionos.com/asad/ci-cd-actions@${{ github.sha }}|g' web-app.yaml
+            echo "Replaced docker-image with ivicosregistry.cr.de-fra.ionos.com/asad/ci-cd-actions@${{ github.sha }} in web-app.yaml"
 
 
         - name: Configure kubectl to use IONOS Kubeconfig
