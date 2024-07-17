@@ -24,6 +24,7 @@
 - External Service: Accessible from outside the cluster using the node's IP and node port 30001.
 
     ``` http://<node-ip>:30001 ```
+
 - Internal Service: Accessible only from within the cluster using the service name internal-service.
 
     ``` http://internal-service:3000 ```
@@ -33,7 +34,31 @@ If you have another service or pod within the cluster that needs to communicate 
 
     curl http://internal-service:3000
 
-and external service as follows (can be tested in terminal):
+>But if you try to access internal service from you machine terminal you will get an error as your local machine is outside the cluster.
+>To access the internal service, you need to run a pod within the cluster that can make the curl request. Such as
+
+- to create a temporary curlpod in the cluster using the radial/busyboxplus:curl image
+    ``` kubectl run curlpod --image=radial/busyboxplus:curl -i --tty --rm --restart=Never ```
+
+
+        Explanation of flags:
+        --image=radial/busyboxplus:curl : Specifies the Docker image to use for the pod.
+        -i : Enables interactive mode, allowing you to interact with the pod.
+        --tty : Allocates a TTY (teletypewriter) for the pod, which is necessary for interactive mode.
+        --rm : Automatically removes the pod after it exits.
+        --restart=Never : Ensures that the pod is not restarted if it exits or crashes.
+
+
+- then you will enter inside the curlpod terminal(cluster) as follows
+    ``` [ root@curlpod:/ ]$ ```
+
+- now you can make request to the internal service as follows
+    ``` curl http://webapp-internal-service:3000```
+
+- write `exit` to exit from the curlpod terminal
+---
+
+>Communicate with external service as follows (can be tested in terminal):
 
     curl http://85.215.135.68:30001
 
