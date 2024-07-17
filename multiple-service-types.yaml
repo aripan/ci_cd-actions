@@ -1,0 +1,98 @@
+# This file defines multiple types of Kubernetes services with proper explanations.
+
+# ClusterIP Service(default)
+# Description:
+# - Exposes the service on an internal IP in the cluster.
+# - This service type is accessible only within the cluster.
+# - Use Case: Used for internal communication between services within the cluster.
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: clusterip-service
+spec:
+  type: ClusterIP
+  selector:
+    app: myapp
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+
+---
+# NodePort Service
+# Description:
+# - This type of service exposes the service on each Node's IP at a static port (the NodePort).
+# - A ClusterIP service, to which the NodePort service routes, is automatically created.
+# - You'll be able to contact the NodePort service, from outside the cluster, by requesting <NodeIP>:<NodePort>.
+# Use Case: Used when you need to make a service accessible from outside the cluster for testing or limited external access.
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: nodeport-service
+spec:
+  type: NodePort
+  selector:
+    app: myapp
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+      nodePort: 30007 # Available range: 30000-32767
+
+---
+# LoadBalancer Service
+# This type of service exposes the service externally using a cloud provider's load balancer.
+# NodePort and ClusterIP services, to which the external load balancer routes, are automatically created.
+# Use Case:
+# - Used for exposing services to external clients and distributing traffic across multiple nodes.
+# - Ideal for production environments where managed load balancing is needed.
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: loadbalancer-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: myapp
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+
+---
+# ExternalName Service
+# This type of service maps a service to a DNS name such as my.database.example.com.
+# It does not define any ports or selectors. Only works with DNS names, not IP addresses.
+# Instead, it returns a CNAME record with the value of the externalName field.
+# Use Case: Used to provide an alias for external services that are not managed by Kubernetes, simplifying access for applications within the cluster.
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: externalname-service
+spec:
+  type: ExternalName
+  externalName: my.database.example.com
+
+
+---
+# Headless Service
+# This type of service does not have a cluster IP. It is used to facilitate direct communication between pods. Set by specifying None for the ClusterIP.
+# It is often used for stateful applications where each pod needs to be individually addressable.
+# Use Case: Used for stateful applications like databases, where each pod needs to be individually addressable.
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: headless-service
+spec:
+  clusterIP: None
+  selector:
+    app: myapp
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
