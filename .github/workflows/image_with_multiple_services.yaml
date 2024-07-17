@@ -41,16 +41,16 @@ jobs:
               # Export the retrieved image digest as an environment variable to be used in subsequent steps
               echo "IMAGE_DIGEST=$IMAGE_DIGEST" >> $GITHUB_ENV
 
-        # Step to replace the Docker image name in the web-app.yaml file
-        - name: Replace docker-image name in web-app.yaml # This step replaces the Docker image name in the web-app.yaml file
+        # Step to replace the Docker image name in the web-app-with-multiple-services.yaml file
+        - name: Replace docker-image name in web-app-with-multiple-services.yaml # This step replaces the Docker image name in the web-app-with-multiple-services.yaml file
           run: |
-            # Use the 'sed' command to find the line containing 'image: docker-image' in the web-app.yaml file
+            # Use the 'sed' command to find the line containing 'image: docker-image' in the web-app-with-multiple-services.yaml file
             # and replace 'docker-image' with the value of the IMAGE_DIGEST environment variable.
-            sed -i 's|image: docker-image|image: ${{ env.IMAGE_DIGEST }}|g' web-app.yaml
+            sed -i 's|image: docker-image|image: ${{ env.IMAGE_DIGEST }}|g' web-app-with-multiple-services.yaml
 
             # The 'echo' command is used to print a message to the console.
             # Here, it prints a message indicating that the replacement was successful.
-            echo "Replaced docker-image with ${{ env.IMAGE_DIGEST }} in web-app.yaml"
+            echo "Replaced docker-image with ${{ env.IMAGE_DIGEST }} in web-app-with-multiple-services.yaml"
 
         # Step to configure kubectl to use IONOS Kubeconfig
         - name: Configure kubectl to use IONOS Kubeconfig # This step configures kubectl to use the IONOS Kubeconfig
@@ -128,8 +128,6 @@ jobs:
 
         # Step to create deployment to IONOS Kubernetes
         - name: Apply Kubernetes manifests # This step applies the Kubernetes manifests to create the deployment
-          # run: |
-          #   KUBECONFIG=$HOME/.kube/temp-config.yaml kubectl apply -f web-app.yaml # Applies the web-app.yaml manifest using kubectl
           run: |
             # Switching to use the web-app-with-multiple-services.yaml manifest
             KUBECONFIG=$HOME/.kube/temp-config.yaml \

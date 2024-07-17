@@ -1,0 +1,136 @@
+## Don't want to trigger this workflow, so change the file format from yaml to txt.
+
+name: Deploy to IONOS # This specifies the name of the workflow
+
+# Trigger the workflow on push events to the main branch
+on:
+    push:
+      branches:
+        - main # This triggers the workflow on push events to the main branch
+
+    workflow_dispatch:  # The 'workflow_dispatch' event allows you to manually trigger the workflow from the GitHub Actions tab without needing a push or pull request.
+
+# Define the jobs to be run in the workflow
+jobs:
+  deploy:
+    # Specify the runner environment
+    runs-on: ubuntu-latest # The job will run on the latest version of an Ubuntu runner
+
+    # Define the steps to be executed in the job
+    steps:
+        # Step to checkout the repository
+        - name: Checkout repository # This step checks out the repository
+          uses: actions/checkout@v3 # Uses the checkout action from GitHub Actions
+
+        # Step to build and push Docker image
+        - name: Build & push Docker image # This step builds and pushes the Docker image
+          uses: mr-smithers-excellent/docker-build-push@v6 # Uses the docker-build-push action from mr-smithers-excellent
+          with:
+            image: asad/ci-cd-actions # The name of the Docker image
+            tags: ${{ github.sha }}, latest # Tags for the Docker image, using the commit SHA and 'latest'
+            registry: ivicosregistry.cr.de-fra.ionos.com # The Docker registry to push the image to
+            dockerfile: Dockerfile # The Dockerfile to use for building the image
+            username: ${{ secrets.IONOS_TOKEN_NAME }} # IONOS token name from secrets
+            password: ${{ secrets.IONOS_TOKEN_PASSWORD }} # IONOS token password from secrets
+
+        # Step to retrieve the image digest
+        - name: Retrieve image digest # This step retrieves the image digest of the pushed Docker image
+          id: get-digest # Sets an ID for this step to reference later
+          run: |
+              # Use docker inspect to retrieve the image digest of the latest Docker image and assign to IMAGE_DIGEST
+              IMAGE_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ivicosregistry.cr.de-fra.ionos.com/asad/ci-cd-actions:latest)
+
+              # Export the retrieved image digest as an environment variable to be used in subsequent steps
+              echo "IMAGE_DIGEST=$IMAGE_DIGEST" >> $GITHUB_ENV
+
+        # Step to replace the Docker image name in the web-app.yaml file
+        - name: Replace docker-image name in web-app.yaml # This step replaces the Docker image name in the web-app.yaml file
+          run: |
+            # Use the 'sed' command to find the line containing 'image: docker-image' in the web-app.yaml file
+            # and replace 'docker-image' with the value of the IMAGE_DIGEST environment variable.
+            sed -i 's|image: docker-image|image: ${{ env.IMAGE_DIGEST }}|g' web-app.yaml
+
+            # The 'echo' command is used to print a message to the console.
+            # Here, it prints a message indicating that the replacement was successful.
+            echo "Replaced docker-image with ${{ env.IMAGE_DIGEST }} in web-app.yaml"
+
+        # Step to configure kubectl to use IONOS Kubeconfig
+        - name: Configure kubectl to use IONOS Kubeconfig # This step configures kubectl to use the IONOS Kubeconfig
+          run: |
+              # Creates the .kube directory in the home directory if it doesn't exist
+              # The '-p' option ensures that no error is thrown if the directory already exists
+              mkdir -p $HOME/.kube
+              # Decodes the base64-encoded Kubeconfig from secrets and saves it to a temporary file
+              # The 'echo' command outputs the value of the KUBE_CONFIG_IONOS secret
+              echo "${{ secrets.KUBE_CONFIG_IONOS }}" | base64 --decode > $HOME/.kube/temp-config.yaml
+              # Prints the contents of the temporary Kubeconfig file to verify it was decoded correctly
+              # The 'cat' command displays the contents of the file
+              cat $HOME/.kube/temp-config.yaml
+          env:
+              KUBECONFIG: $HOME/.kube/temp-config.yaml # Sets the KUBECONFIG environment variable to the temporary Kubeconfig file
+
+        # Step to verify the kubectl configuration
+        - name: Verify kubectl configuration # This step verifies the kubectl configuration
+          run: |
+            # Views the kubectl configuration using the specified KUBECONFIG file
+            KUBECONFIG=$HOME/.kube/temp-config.yaml kubectl config view
+
+            # Gets the available kubectl contexts using the specified KUBECONFIG file
+            KUBECONFIG=$HOME/.kube/temp-config.yaml kubectl config get-contexts
+
+            # Gets the current kubectl context using the specified KUBECONFIG file
+            KUBECONFIG=$HOME/.kube/temp-config.yaml kubectl config current-context
+
+            # Stores the current kubectl context in a variable using the specified KUBECONFIG file
+            CURRENT_CONTEXT=$(KUBECONFIG=$HOME/.kube/temp-config.yaml kubectl config current-context)
+
+            # Checks if the current context matches the expected context
+            if [ "$CURRENT_CONTEXT" != "cluster-admin@test" ]; then
+              # Prints an error message if the context does not match
+              echo "Error: kubectl configuration does not match IONOS configuration"
+
+              # Exits the script with an error code
+              exit 1
+            else
+              # Prints a success message if the context matches
+              echo "Success: kubectl configuration matches IONOS configuration"
+            fi
+
+        # Step to check if the Kubernetes secret exists
+        - name: Check if Kubernetes secret exists # This step checks if the Kubernetes secret exists
+          id: check-secret # Sets an ID for this step to reference later
+          run: |
+            # Check if the Kubernetes secret 'ionossecretasad' exists using the specified KUBECONFIG file
+            if KUBECONFIG=$HOME/.kube/temp-config.yaml kubectl get secret ionossecretasad; then
+              # If the secret exists, set an environment variable 'exists' to 'true'
+              echo "exists=true" >> $GITHUB_ENV
+            else
+              # If the secret does not exist, set an environment variable 'exists' to 'false'
+              echo "exists=false" >> $GITHUB_ENV
+            fi
+
+        # Step to create Kubernetes secret for Docker registry if it does not exist
+        - name: Create Kubernetes secret for Docker registry if it does not exist # This step creates the Kubernetes secret for the Docker registry if it does not exist
+          if: env.exists == 'false' # Only runs this step if the secret does not exist
+          env:
+            IONOS_TOKEN_NAME: ${{ secrets.IONOS_TOKEN_NAME }} # IONOS token name from secrets
+            IONOS_TOKEN_PASSWORD: ${{ secrets.IONOS_TOKEN_PASSWORD }} # IONOS token password from secrets
+            IONOS_EMAIL: ${{ secrets.IONOS_EMAIL }} # IONOS email from secrets
+          run: |
+            # Creates the Kubernetes secret for the Docker registry using the specified KUBECONFIG file
+            KUBECONFIG=$HOME/.kube/temp-config.yaml kubectl create secret docker-registry ionossecretasad \
+              # Specifies the Docker server
+              --docker-server=ivicosregistry.cr.de-fra.ionos.com \
+              # Specifies the Docker username
+              --docker-username=$IONOS_TOKEN_NAME \
+              # Specifies the Docker password
+              --docker-password=$IONOS_TOKEN_PASSWORD \
+              # Specifies the Docker email
+              --docker-email=$IONOS_EMAIL
+
+        # Step to create deployment to IONOS Kubernetes
+        - name: Apply Kubernetes manifests # This step applies the Kubernetes manifests to create the deployment
+          run: |
+            # Applies the web-app.yaml manifest using kubectl
+            KUBECONFIG=$HOME/.kube/temp-config.yaml kubectl apply -f web-app.yaml
+
