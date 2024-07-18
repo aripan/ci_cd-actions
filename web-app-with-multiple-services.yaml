@@ -18,7 +18,7 @@ spec:
         - name: webapp # Name of the container
           image: docker-image # this name will be replaced in each push to the repository so that the latest image is always used
           ports:
-            - containerPort: 3000 # Port to expose on the container
+            - containerPort: 3000 # Port to expose on the container. This must be the same as the target port in the service.
       # This specifies the secret to be used for pulling the Docker image from the private registry
       imagePullSecrets:
         - name: ionossecretasad
@@ -35,9 +35,9 @@ spec:
     app: webapp # Label selector to identify the pods
   ports:
     - protocol: TCP # Protocol to be used
-      port: 3000 # Port to expose on the service
-      targetPort: 3000 # Port to target on the pod
-      nodePort: 30001 # Node port to expose on the service
+      port: 3000 # Port to expose on the service. This can be arbitrary
+      targetPort: 3000 # Port to target on the pod. This must be the same as the port in the container. Such as 3000 is being used as the container port in the container. Through this port service will communicate with the pod.
+      nodePort: 30001 # Node port to expose on the service. This can be arbitrary in between 30000-32767
 
 ---
 
@@ -51,5 +51,5 @@ spec:
     app: webapp # Label selector to identify the pods
   ports:
     - protocol: TCP # Protocol to be used
-      port: 3000 # Port to expose on the service
-      targetPort: 3000 # Port to target on the pod
+      port: 3000 # Port to expose on the service. This can be arbitrary
+      targetPort: 3000 # Port to target on the pod. This must be the same as the port in the container. Such as 3000 is being used as the container port in the container. Through this port service will communicate with the pod.
