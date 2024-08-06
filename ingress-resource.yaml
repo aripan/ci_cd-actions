@@ -1,0 +1,45 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: resource-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+
+spec:
+  tls:
+  - hosts:
+    - ivicos-ionos-test.ivicos-campus.app
+    - gateway.ivicos-campus.app
+    - realtime.ivicos-campus.app
+    secretName: ivicos-new-tls
+  rules:
+    - host: ivicos-ionos-test.ivicos-campus.app
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: v1-campus-alpha-client-service
+                port:
+                  number: 80
+    - host: gateway.ivicos-campus.app
+      http:
+        paths:
+          - path: /v1
+            pathType: Prefix
+            backend:
+              service:
+                name: v1-gateway-service
+                port:
+                  number: 8080
+    - host: realtime.ivicos-campus.app
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: v1-campus-realtime-api-service
+                port:
+                  number: 3000

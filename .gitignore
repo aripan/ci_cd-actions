@@ -10,3 +10,6 @@ yarn-error.log
 *.tsx
 token-ionos.json
 
+# Ignore PEM files
+*.pem
+*.sh

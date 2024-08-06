@@ -63,3 +63,33 @@ If you have another service or pod within the cluster that needs to communicate 
     curl http://85.215.135.68:30001
 
 By defining multiple services in the same YAML file, you can manage both internal and external access to your application efficiently.
+
+
+### Regarding the secret in workflow needed to pull the image from docker hub
+
+- This Kubernetes secret is needed for the following reasons:
+
+    - Private Registry Access: It allows Kubernetes to authenticate with the private Docker registry (ivicosregistry.cr.de-fra.ionos.com) when pulling images.
+    - Image Pull Authentication: When deploying pods, Kubernetes uses this secret to authenticate and pull images from the private registry.
+    - Security: It securely stores the credentials (username, password, email) needed for registry access without exposing them in pod specifications.
+    - Automation: It enables automated deployments by providing necessary authentication for CI/CD pipelines to pull images during updates or new deployments.
+    - In short, this secret is crucial for securely accessing and pulling images from your private Docker registry within the Kubernetes cluster.
+
+But writing the whole code again and again in the workflow is not a good practice so we can use the same secret in the cluster and use it in the workflow (meaning use this as the imagePullSecrets).
+
+The way of creating secret in the cluster is as follows:
+
+    ``` kubectl create secret docker-registry secret-name-here \
+    --docker-server=docker-server-name-here \
+    --docker-username=docker-username-here \
+    --docker-password=docker-password-here \
+    --docker-email=docker-email-here ```
+
+    such as
+    ``` kubectl create secret docker-registry ionossecretasad \
+    --docker-server=ivicosregistry.cr.de-fra.ionos.com \
+    --docker-username=${{ secrets.IONOS_TOKEN_NAME }} \
+    --docker-password=${{ secrets.IONOS_TOKEN_PASSWORD }} \
+    --docker-email=${{ secrets.IONOS_EMAIL }} ```
+
+So simply we can use the same secret in all manifest as imagePullSecrets and we don't need to write the whole code again and again in the workflow.
