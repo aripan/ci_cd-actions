@@ -19,6 +19,13 @@ spec:
           image: docker-image # this name will be replaced in each push to the repository so that the latest image is always used
           ports:
             - containerPort: 3000 # Port to expose on the container
+          resources:
+            requests:
+              cpu: 250m     # Minimum guaranteed CPU allocation (1/4 core)
+              memory: 256Mi # Minimum guaranteed memory allocation
+            limits:
+              cpu: 500m     # Maximum CPU usage allowed (1/2 core)
+              memory: 512Mi # Maximum memory usage allowed
       # This specifies the secret to be used for pulling the Docker image from the private registry
       imagePullSecrets:
         - name: ionossecretasad

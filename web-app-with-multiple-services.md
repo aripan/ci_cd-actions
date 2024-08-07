@@ -93,3 +93,74 @@ The way of creating secret in the cluster is as follows:
     --docker-email=${{ secrets.IONOS_EMAIL }} ```
 
 So simply we can use the same secret in all manifest as imagePullSecrets and we don't need to write the whole code again and again in the workflow.
+
+
+### resource limits and requests
+
+In Kubernetes, resource management is crucial for efficient cluster operation. The two main resources we manage are CPU and memory. For each container, we can specify:
+
+- Requests: The minimum guaranteed resources
+- Limits: The maximum allowed resources
+
+Here's a breakdown with examples:
+```
+resources:
+  requests:
+    cpu: 250m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+```
+Explanation:
+- The container is guaranteed at least 1/4 CPU core and 256Mi of memory.
+- It can use up to 1/2 CPU core and 512Mi of memory if available.
+
+<u><strong>More examples:</strong></u>
+```
+# Example 1: Minimal resources
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 200m
+    memory: 256Mi
+
+# Example 2: Resource-intensive application
+resources:
+  requests:
+    cpu: 1
+    memory: 1Gi
+  limits:
+    cpu: 2
+    memory: 2Gi
+
+# Example 3: Memory-intensive, low CPU
+resources:
+  requests:
+    cpu: 100m
+    memory: 2Gi
+  limits:
+    cpu: 500m
+    memory: 4Gi
+
+# Example 4: CPU-intensive, low memory
+resources:
+  requests:
+    cpu: 2
+    memory: 512Mi
+  limits:
+    cpu: 4
+    memory: 1Gi
+```
+
+Key points:
+- CPU is measured in cores or millicores (m). 1000m = 1 core.
+- Memory is typically in Mi (Mebibytes) or Gi (Gibibytes).
+- Requests should be set to what your application needs to run smoothly.
+- Limits prevent a container from using excessive resources.
+- It's common to set limits higher than requests to allow for spikes.
+
+The scheduler uses requests to decide which node to place the pod on. Limits are enforced by the kubelet on each node.
+By properly setting these values, you ensure your applications have the resources they need while maintaining overall cluster efficiency and preventing resource contention.
