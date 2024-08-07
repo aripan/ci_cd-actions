@@ -1,0 +1,21 @@
+apiVersion: batch/v1 # Kubernetes API version for Job
+kind: Job # Specifies that this is a Job resource
+metadata:
+  name: debug-job-with-curl # Name of the Job
+spec:
+  ttlSecondsAfterFinished: 60 # Time-to-live after job completion (1 minutes)
+  template:
+    spec:
+      containers:
+      - name: debug-container-curl # Name of the container within the pod
+        image: curlimages/curl:latest # Using the latest curl image
+        command: ["sh", "-c", "sleep 3600"] # Sleep for 1 hour to allow for debugging
+        resources:
+          requests:
+            cpu: 100m # Request 0.1 CPU cores
+            memory: 64Mi # Request 64 MiB of memory
+          limits:
+            cpu: 200m # Limit to 0.2 CPU cores
+            memory: 128Mi # Limit to 128 MiB of memory
+      restartPolicy: Never # Do not restart the pod if it fails
+  backoffLimit: 2 # Allow up to 2 retries if the job fails

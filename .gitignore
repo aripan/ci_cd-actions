@@ -12,4 +12,3 @@ token-ionos.json
 
 # Ignore PEM files
 *.pem
-*.sh
