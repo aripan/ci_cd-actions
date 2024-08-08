@@ -1,11 +1,22 @@
 apiVersion: networking.k8s.io/v1
+kind: IngressClass
+metadata:
+  name: ivicos-ingress
+  annotations:
+    ingressclass.kubernetes.io/is-default-class: "true"
+spec:
+  controller: k8s.io/ingress-nginx
+
+---
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: resource-ingress
-  # annotations:
-  #   nginx.ingress.kubernetes.io/rewrite-target: /
+  name: ivicos-ingress-controller
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
 
 spec:
+  ingressClassName: ivicos-ingress
   tls:
   - hosts:
     - ivicos-ionos-test.ivicos-campus.app
